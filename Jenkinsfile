@@ -1,14 +1,18 @@
-pipeline{
+pipeline {
     agent any
-    stages{
-        stage("build"){
-            steps{
-                sh '''
-                    ls 
-                    node --version
-                   npm ci --legacy-peer-deps
-                   npm run build
-                   ls 
+
+    tools {
+        nodejs 'NodeJS_18'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                bat '''
+                    node -v
+                    npm ci --legacy-peer-deps
+                    npm run build
+                    ls
                 '''
             }
         }
