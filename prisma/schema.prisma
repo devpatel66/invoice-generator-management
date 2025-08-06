@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id    Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  company  Company[]
+  invoices   Invoice[]
+  customers  Customer[]
+  payments   Payment[]
+  bank      Bank[]
+}
+
+model Company {
+  compy_id    Int      @id @default(autoincrement())
+  name        String
+  email       String
+  phone       String
+  website     String?
+  address     String?
+  gst_number  String?
+  user_id     Int?
+  user        User?     @relation(fields: [user_id], references: [user_id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  customers   Customer[]
+}
+
+model Invoice {
+  invoice_id        String   @id
+  invoice_number    Int
+  invoice_date      DateTime
+  invoice_due_date  DateTime
+  custome_details   Json?
+  customer_id       Int
+  customer          Customer @relation(fields: [customer_id], references: [customer_id])
+  user_id           Int
+  user              User     @relation(fields: [user_id], references: [user_id])
+  tax_rate          Int
+  terms_condition   String?
+  customer_note     String?
+  items             Json
+  sub_total         Float
+  tax_amount        Float
+  final_amount      Float
+  payment_status    String
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  payments          Payment[]
+}
+
+model Customer {
+  customer_id Int      @id @default(autoincrement())
+  user_id     Int
+  user        User     @relation(fields: [user_id], references: [user_id])
+  name        String
+  company_id  Int
+  company     Company  @relation(fields: [company_id], references: [compy_id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  invoices    Invoice[]
+  payments    Payment[]
+}
+
+model Order {
+  order_id          Int      @id @default(autoincrement())
+  razorpay_order_id String
+  receipt           String
+  invoice_id        String  
+  amount            Decimal @db.Decimal(10, 2) 
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+
+
+model Payment {
+  id                    Int      @id @default(autoincrement())
+  invoice_id            String
+  user_id               Int
+  user                  User     @relation(fields: [user_id], references: [user_id])
+  invoice               Invoice  @relation(fields: [invoice_id], references: [invoice_id])
+  customer_id           Int
+  customer              Customer @relation(fields: [customer_id], references: [customer_id])
+  razorpay_payment_id   String?
+  razorpay_payment_link String?
+  amount                Int
+  method                String?
+  status                String
+  created_at            DateTime @default(now())
+}
+
+model Bank {
+  bank_id    Int      @id @default(autoincrement())
+  bank_name       String
+  account_number  String   @unique
+  account_holder_name  String
+  account_id  String
+  bank_address    String?
+  ifsc_code    String
+  swift_code    String?
+  account_type    String
+  contact_id String
+  user_id    Int?
+  user       User?    @relation(fields: [user_id], references: [user_id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt  
+}
