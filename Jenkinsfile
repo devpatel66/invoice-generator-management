@@ -10,11 +10,11 @@ pipeline{
             }
             steps{
                 sh '''
-                    ls -la
+                    ls 
                     node --version
                    npm ci --legacy-peer-deps
                    npm run build
-                   ls -ls
+                   ls 
                 '''
             }
         }
